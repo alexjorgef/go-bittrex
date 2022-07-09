@@ -36,3 +36,10 @@ type Market struct {
 	Notice              string          `json:"notice"`
 	ProhibitedIn        []string        `json:"prohibitedIn"`
 }
+
+type Ticker struct {
+	Symbol        string          `json:"symbol"`
+	LastTradeRate decimal.Decimal `json:"lastTradeRate"`
+	BidRate       decimal.Decimal `json:"bidRate"`
+	AskRate       decimal.Decimal `json:"askRate"`
+}

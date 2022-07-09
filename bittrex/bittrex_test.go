@@ -23,3 +23,10 @@ func TestMarketsService_GetMarkets(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "1ECO-BTC", markets[0].Symbol)
 }
+
+func TestMarketsService_GetTicker(t *testing.T) {
+	bt := New("", "")
+	ticker, err := bt.GetTicker("BTC-USD")
+	assert.NoError(t, err)
+	assert.Equal(t, "BTC-USD", ticker.Symbol)
+}
