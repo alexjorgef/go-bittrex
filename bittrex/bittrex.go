@@ -4,6 +4,7 @@ package bittrex
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -70,5 +71,16 @@ func (b *Bittrex) GetMarkets() (markets []Market, err error) {
 	}
 
 	err = json.Unmarshal(r, &markets)
+	return
+}
+
+// Retrieve the ticker for a specific market.
+func (b *Bittrex) GetTicker(market string) (ticker Ticker, err error) {
+	r, err := b.client.do("GET", "markets/"+strings.ToUpper(market)+"/ticker", "", false)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(r, &ticker)
 	return
 }
