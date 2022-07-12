@@ -6,8 +6,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// Currencies
-
 type Currency struct {
 	Symbol                   string        `json:"symbol"`
 	Name                     string        `json:"name"`
@@ -22,8 +20,6 @@ type Currency struct {
 	AssociatedTermsOfService []interface{} `json:"associatedTermsOfService"`
 	Tags                     []interface{} `json:"tags"`
 }
-
-// Markets
 
 type Market struct {
 	Symbol              string          `json:"symbol"`
@@ -42,4 +38,14 @@ type Ticker struct {
 	LastTradeRate decimal.Decimal `json:"lastTradeRate"`
 	BidRate       decimal.Decimal `json:"bidRate"`
 	AskRate       decimal.Decimal `json:"askRate"`
+}
+
+type Order struct {
+	Quantity decimal.Decimal `json:"quantity"`
+	Rate     decimal.Decimal `json:"rate"`
+}
+
+type OrderBook struct {
+	Bid []Order `json:"bid"`
+	Ask []Order `json:"ask"`
 }

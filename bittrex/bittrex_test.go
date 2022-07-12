@@ -30,3 +30,17 @@ func TestMarketsService_GetTicker(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "BTC-USD", ticker.Symbol)
 }
+
+func TestMarketsService_GetOrderBook(t *testing.T) {
+	bt := New("", "")
+	orderBook, err := bt.GetOrderBook("BTC-USD", 0)
+	assert.NoError(t, err)
+	assert.Equal(t, len(orderBook.Ask), 25)
+	assert.Equal(t, len(orderBook.Bid), 25)
+	orderBook, err = bt.GetOrderBook("BTC-USD", 2)
+	assert.Error(t, err)
+	orderBook, err = bt.GetOrderBook("BTC-USD", 1)
+	assert.NoError(t, err)
+	assert.Equal(t, orderBook.Ask[0].Quantity.IsPositive(), true)
+	assert.Equal(t, orderBook.Bid[0].Quantity.IsPositive(), true)
+}
