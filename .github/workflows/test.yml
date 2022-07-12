@@ -1,5 +1,14 @@
 name: Test
-on: [push, pull_request]
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - "*"
+  workflow_dispatch: {}
+
 jobs:
   test:
     name: Test
@@ -15,4 +24,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.txt
-          fail_ci_if_error: true
+          fail_ci_if_error: false
