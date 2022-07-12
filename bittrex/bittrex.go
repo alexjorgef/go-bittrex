@@ -3,7 +3,9 @@ package bittrex
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -75,12 +77,30 @@ func (b *Bittrex) GetMarkets() (markets []Market, err error) {
 }
 
 // Retrieve the ticker for a specific market.
-func (b *Bittrex) GetTicker(market string) (ticker Ticker, err error) {
-	r, err := b.client.do("GET", "markets/"+strings.ToUpper(market)+"/ticker", "", false)
+func (b *Bittrex) GetTicker(marketSymbol string) (ticker Ticker, err error) {
+	r, err := b.client.do("GET", "markets/"+strings.ToUpper(marketSymbol)+"/ticker", "", false)
 	if err != nil {
 		return
 	}
 
 	err = json.Unmarshal(r, &ticker)
+	return
+}
+
+// Retrieve the order book for a specific market.
+func (b *Bittrex) GetOrderBook(marketSymbol string, depth int) (orderBook OrderBook, err error) {
+	if depth != 1 && depth != 25 && depth != 500 && depth != 0 {
+		return orderBook, errors.New("invalid depth")
+	}
+	if depth == 0 {
+		depth = 25
+	}
+
+	r, err := b.client.do("GET", "markets/"+strings.ToUpper(marketSymbol)+"/orderbook?depth="+strconv.Itoa(depth), "", false)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(r, &orderBook)
 	return
 }
