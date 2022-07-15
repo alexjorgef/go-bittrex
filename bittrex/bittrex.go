@@ -76,6 +76,17 @@ func (b *Bittrex) GetMarkets() (markets []Market, err error) {
 	return
 }
 
+// List summaries of the last 24 hours of activity for all markets.
+func (b *Bittrex) GetMarketsSummaries() (marketSummaries []MarketSummary, err error) {
+	r, err := b.client.do("GET", "markets/summaries", "", false)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(r, &marketSummaries)
+	return
+}
+
 // Retrieve the ticker for a specific market.
 func (b *Bittrex) GetTicker(marketSymbol string) (ticker Ticker, err error) {
 	r, err := b.client.do("GET", "markets/"+strings.ToUpper(marketSymbol)+"/ticker", "", false)

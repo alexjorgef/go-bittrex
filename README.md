@@ -138,7 +138,7 @@ func main() {
 		- [ ] GET /funds-transfer-methods/{fundsTransferMethodId}
     - [ ] Markets
 		- [X] GET /markets
-		- [ ] GET /markets/summaries
+		- [X] GET /markets/summaries
 		- [ ] HEAD /markets/summaries
 		- [ ] GET /markets/tickers
 		- [ ] HEAD /markets/tickers
@@ -203,3 +203,7 @@ func main() {
 		- [ ] Tickers
 		- [ ] Ticker
 		- [x] Trade
+
+## References
+
+This repository is a cleaned & updated version of [toorop/go-bittrex](https://github.com/toorop/go-bittrex) repo (inspired from [alexeykaravan/go-bittrex-v3](https://github.com/alexeykaravan/go-bittrex-v3) fork.
