@@ -33,6 +33,16 @@ type Market struct {
 	ProhibitedIn        []string        `json:"prohibitedIn"`
 }
 
+type MarketSummary struct {
+	Symbol        string          `json:"symbol"`
+	High          decimal.Decimal `json:"high"`
+	Low           decimal.Decimal `json:"low"`
+	Volume        decimal.Decimal `json:"volume"`
+	QuoteVolume   decimal.Decimal `json:"quoteVolume"`
+	PercentChange decimal.Decimal `json:"percentChange"`
+	UpdatedAt     time.Time       `json:"updatedAt"`
+}
+
 type Ticker struct {
 	Symbol        string          `json:"symbol"`
 	LastTradeRate decimal.Decimal `json:"lastTradeRate"`
