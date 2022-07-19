@@ -31,6 +31,13 @@ func TestMarketsService_GetMarketsSummaries(t *testing.T) {
 	assert.NotEmpty(t, marketSummaries[0].Volume)
 }
 
+func TestMarketsService_GetMarketsTickers(t *testing.T) {
+	bt := New("", "")
+	marketTickers, err := bt.GetMarketsTickers()
+	assert.NoError(t, err)
+	assert.NotEmpty(t, marketTickers[0].Symbol)
+}
+
 func TestMarketsService_GetTicker(t *testing.T) {
 	bt := New("", "")
 	ticker, err := bt.GetTicker("BTC-USD")

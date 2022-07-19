@@ -87,6 +87,17 @@ func (b *Bittrex) GetMarketsSummaries() (marketSummaries []MarketSummary, err er
 	return
 }
 
+// List tickers for all markets.
+func (b *Bittrex) GetMarketsTickers() (marketTickers []Ticker, err error) {
+	r, err := b.client.do("GET", "markets/tickers", "", false)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(r, &marketTickers)
+	return
+}
+
 // Retrieve the ticker for a specific market.
 func (b *Bittrex) GetTicker(marketSymbol string) (ticker Ticker, err error) {
 	r, err := b.client.do("GET", "markets/"+strings.ToUpper(marketSymbol)+"/ticker", "", false)
