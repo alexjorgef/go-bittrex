@@ -109,6 +109,17 @@ func (b *Bittrex) GetTicker(marketSymbol string) (ticker Ticker, err error) {
 	return
 }
 
+// Retrieve summary of the last 24 hours of activity for a specific market.
+func (b *Bittrex) GetSummary(marketSymbol string) (marketSummary MarketSummary, err error) {
+	r, err := b.client.do("GET", "markets/"+strings.ToUpper(marketSymbol)+"/summary", "", false)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(r, &marketSummary)
+	return
+}
+
 // Retrieve the order book for a specific market.
 func (b *Bittrex) GetOrderBook(marketSymbol string, depth int) (orderBook OrderBook, err error) {
 	if depth != 1 && depth != 25 && depth != 500 && depth != 0 {
