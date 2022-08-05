@@ -59,3 +59,11 @@ type OrderBook struct {
 	Bid []Order `json:"bid"`
 	Ask []Order `json:"ask"`
 }
+
+type Trade struct {
+	ID         string
+	ExecutedAt time.Time
+	Quantity   decimal.Decimal
+	Rate       decimal.Decimal
+	TakerSide  string
+}

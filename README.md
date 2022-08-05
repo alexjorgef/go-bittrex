@@ -147,7 +147,7 @@ func main() {
 		- [X] GET /markets/{marketSymbol}/summary
 		- [X] GET /markets/{marketSymbol}/orderbook
 		- [ ] HEAD /markets/{marketSymbol}/orderbook
-		- [ ] GET /markets/{marketSymbol}/trades
+		- [X] GET /markets/{marketSymbol}/trades
 		- [ ] HEAD /markets/{marketSymbol}/trade
 		- [ ] GET /markets/{marketSymbol}/candles/{candleType}/{candleInterval}/recent
 		- [ ] HEAD /markets/{marketSymbol}/candles/{candleType}/{candleInterval}/recent

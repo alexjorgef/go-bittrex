@@ -86,7 +86,7 @@ func (b *Bittrex) Authentication(c *signalr.Client) error {
 }
 
 // Sends a message with the quantity and rate of trades on a market as they occur.
-func (b *Bittrex) SubscribeTradeUpdates(market string, trades chan<- Trade, stop <-chan bool) error {
+func (b *Bittrex) SubscribeTradeUpdates(market string, trades chan<- StreamTrade, stop <-chan bool) error {
 	const timeout = 15 * time.Second
 	client := signalr.NewWebsocketClient()
 
@@ -131,7 +131,7 @@ func (b *Bittrex) SubscribeTradeUpdates(market string, trades chan<- Trade, stop
 					continue
 				}
 
-				trade := Trade{Symbol: tradeSlice.MarketSymbol}
+				trade := StreamTrade{Symbol: tradeSlice.MarketSymbol}
 
 				for _, delta := range tradeSlice.Deltas {
 					trade.ID = delta.ID

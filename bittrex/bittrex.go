@@ -148,3 +148,14 @@ func (b *Bittrex) GetOrderBook(marketSymbol string, depth int) (orderBook OrderB
 	err = json.Unmarshal(r, &orderBook)
 	return
 }
+
+// Retrieve the recent trades for a specific market.
+func (b *Bittrex) GetTrades(marketSymbol string) (trades []Trade, err error) {
+	r, err := b.client.do("GET", "markets/"+strings.ToUpper(marketSymbol)+"/trades", "", false)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(r, &trades)
+	return
+}

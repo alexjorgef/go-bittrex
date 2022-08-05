@@ -74,3 +74,12 @@ func TestMarketsService_GetOrderBook(t *testing.T) {
 	assert.NotEmpty(t, orderBook.Ask[0].Quantity)
 	assert.NotEmpty(t, orderBook.Bid[0].Quantity)
 }
+
+func TestMarketsService_GetTrades(t *testing.T) {
+	bt := New("", "")
+	trades, err := bt.GetTrades("BTC-USD")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, trades[0].Quantity)
+	assert.NotEmpty(t, trades[0].Rate)
+	assert.NotEmpty(t, trades[0].TakerSide)
+}
