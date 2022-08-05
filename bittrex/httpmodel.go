@@ -61,9 +61,13 @@ type OrderBook struct {
 }
 
 type Trade struct {
-	ID         string
-	ExecutedAt time.Time
-	Quantity   decimal.Decimal
-	Rate       decimal.Decimal
-	TakerSide  string
+	ID         string          `json:"id"`
+	ExecutedAt time.Time       `json:"executedAt"`
+	Quantity   decimal.Decimal `json:"quantity"`
+	Rate       decimal.Decimal `json:"rate"`
+	TakerSide  string          `json:"takerSide"`
+}
+
+type Ping struct {
+	ServerTime int64 `json:"serverTime"`
 }
