@@ -159,3 +159,18 @@ func (b *Bittrex) GetTrades(marketSymbol string) (trades []Trade, err error) {
 	err = json.Unmarshal(r, &trades)
 	return
 }
+
+// Ping
+
+// Pings the service
+func (b *Bittrex) Ping() (serverTime int64, err error) {
+	r, err := b.client.do("GET", "ping", "", false)
+	if err != nil {
+		return
+	}
+	var pingR Ping
+
+	err = json.Unmarshal(r, &pingR)
+	serverTime = pingR.ServerTime
+	return
+}

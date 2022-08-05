@@ -161,8 +161,8 @@ func main() {
 		- [ ] DELETE /orders/{orderId}
 		- [ ] GET /orders/{orderId}/executions
 		- [ ] POST /orders
-	- [ ] Ping
-		- [ ] GET /ping
+	- [X] Ping
+		- [X] GET /ping
     - [ ] Subaccounts
 		- [ ] GET /subaccounts
 		- [ ] POST /subaccounts

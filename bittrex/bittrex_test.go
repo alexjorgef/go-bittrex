@@ -83,3 +83,10 @@ func TestMarketsService_GetTrades(t *testing.T) {
 	assert.NotEmpty(t, trades[0].Rate)
 	assert.NotEmpty(t, trades[0].TakerSide)
 }
+
+func TestPingService_Ping(t *testing.T) {
+	bt := New("", "")
+	ping, err := bt.Ping()
+	assert.NoError(t, err)
+	assert.NotEmpty(t, ping)
+}
