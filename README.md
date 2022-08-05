@@ -121,7 +121,7 @@ func main() {
 		- [ ] HEAD /conditional-orders/open
 		- [ ] POST /conditional-orders
     - [ ] Currencies
-		- [ ] GET /currencies
+		- [X] GET /currencies
 		- [X] GET /currencies/{symbol}
     - [ ] Deposits
 		- [ ] GET /deposits/open
