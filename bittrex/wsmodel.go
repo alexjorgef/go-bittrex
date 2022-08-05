@@ -6,7 +6,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type Trade struct {
+type StreamTrade struct {
 	Symbol     string
 	ID         string
 	ExecutedAt time.Time

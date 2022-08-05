@@ -10,14 +10,14 @@ import (
 
 func TestTradeStream_SubscribeTradeUpdates(t *testing.T) {
 	bt := New("", "")
-	ch := make(chan Trade)
+	ch := make(chan StreamTrade)
 	errCh := make(chan error)
 	stopCh := make(chan bool)
 	go func() {
 		errCh <- bt.SubscribeTradeUpdates("BTC-USD", ch, stopCh)
 	}()
 	var err error
-	var trade Trade
+	var trade StreamTrade
 	select {
 	case trade = <-ch:
 	case err = <-errCh:
@@ -26,5 +26,11 @@ func TestTradeStream_SubscribeTradeUpdates(t *testing.T) {
 		err = errors.New("timeout")
 	}
 	assert.NoError(t, err)
+	assert.NotEmpty(t, trade.Symbol)
+	assert.NotEmpty(t, trade.ID)
+	assert.NotEmpty(t, trade.TakerSide)
+	assert.NotEmpty(t, trade.ExecutedAt)
+	assert.NotEmpty(t, trade.Rate)
+	assert.NotEmpty(t, trade.Quantity)
 	assert.Greater(t, trade.Rate.IntPart(), int64(0))
 }
