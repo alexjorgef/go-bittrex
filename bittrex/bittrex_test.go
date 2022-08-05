@@ -8,6 +8,13 @@ import (
 
 // Currencies
 
+func TestCurrenciesService_GetCurrencies(t *testing.T) {
+	bt := New("", "")
+	currencies, err := bt.GetCurrencies()
+	assert.NoError(t, err)
+	assert.NotEmpty(t, currencies[0].Name)
+}
+
 func TestCurrenciesService_GetCurrency(t *testing.T) {
 	bt := New("", "")
 	currency, err := bt.GetCurrency("BTC")

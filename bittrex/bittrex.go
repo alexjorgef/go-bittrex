@@ -52,6 +52,17 @@ func (b *Bittrex) SetDebug(enable bool) {
 
 // Currencies
 
+// List currencies.
+func (b *Bittrex) GetCurrencies() (currencies []Currency, err error) {
+	r, err := b.client.do("GET", "currencies", "", false)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(r, &currencies)
+	return
+}
+
 // Retrieve info on a specified currency.
 func (b *Bittrex) GetCurrency(symbol string) (currency Currency, err error) {
 	r, err := b.client.do("GET", "currencies/"+symbol, "", false)
