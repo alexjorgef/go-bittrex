@@ -22,15 +22,16 @@ type Currency struct {
 }
 
 type Market struct {
-	Symbol              string          `json:"symbol"`
-	BaseCurrencySymbol  string          `json:"baseCurrencySymbol"`
-	QuoteCurrencySymbol string          `json:"quoteCurrencySymbol"`
-	MinTradeSize        decimal.Decimal `json:"minTradeSize"`
-	Precision           int             `json:"precision"`
-	Status              string          `json:"status"`
-	CreatedAt           time.Time       `json:"createdAt"`
-	Notice              string          `json:"notice"`
-	ProhibitedIn        []string        `json:"prohibitedIn"`
+	Symbol                   string          `json:"symbol"`
+	BaseCurrencySymbol       string          `json:"baseCurrencySymbol"`
+	QuoteCurrencySymbol      string          `json:"quoteCurrencySymbol"`
+	MinTradeSize             decimal.Decimal `json:"minTradeSize"`
+	Precision                int             `json:"precision"`
+	Status                   string          `json:"status"`
+	CreatedAt                time.Time       `json:"createdAt"`
+	ProhibitedIn             []string        `json:"prohibitedIn"`
+	AssociatedTermsOfService []string        `json:"associatedTermsOfService"`
+	Tags                     []string        `json:"tags"`
 }
 
 type MarketSummary struct {
@@ -70,4 +71,14 @@ type Trade struct {
 
 type Ping struct {
 	ServerTime int64 `json:"serverTime"`
+}
+
+type Candle struct {
+	StartsAt    time.Time       `json:"startsAt"`
+	Open        decimal.Decimal `json:"open"`
+	High        decimal.Decimal `json:"high"`
+	Low         decimal.Decimal `json:"low"`
+	Close       decimal.Decimal `json:"close"`
+	Volume      decimal.Decimal `json:"volume"`
+	QuoteVolume decimal.Decimal `json:"quoteVolume"`
 }
