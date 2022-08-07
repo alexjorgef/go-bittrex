@@ -20,6 +20,17 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	WS_BASE = "socket-v3.bittrex.com" // WS API endpoint
+	WS_HUB  = "C3"                    // SignalR main hub
+
+	STREAM_ORDERBOOK = "orderBook"
+	STREAM_TICKER    = "ticker"
+	STREAM_ORDER     = "order"
+	STREAM_TRADE     = "trade"
+	STREAM_HEARTBEAT = "heartbeat"
+)
+
 type Responce struct {
 	Success   bool        `json:"Success"`
 	ErrorCode interface{} `json:"ErrorCode"`
@@ -68,7 +79,7 @@ func (b *Bittrex) Authentication(c *signalr.Client) error {
 
 	sig := hex.EncodeToString(mac.Sum(nil))
 
-	auth, err := c.CallHub(WSHUB, "Authenticate", b.client.apiKey, apiTimestamp, UUID, sig)
+	auth, err := c.CallHub(WS_HUB, "Authenticate", b.client.apiKey, apiTimestamp, UUID, sig)
 	if err != nil {
 		return err
 	}
@@ -94,12 +105,12 @@ func (b *Bittrex) SubscribeTradeUpdates(market string, trades chan<- StreamTrade
 
 	client.OnClientMethod = func(hub string, method string, messages []json.RawMessage) {
 
-		if hub != WSHUB {
+		if hub != WS_HUB {
 			return
 		}
 
 		switch method {
-		case CHANNEL_HEARTBEAT, CHANNEL_TRADE:
+		case STREAM_HEARTBEAT, STREAM_TRADE:
 			atomic.StoreInt64(&updTime, time.Now().Unix())
 
 		default:
@@ -157,7 +168,7 @@ func (b *Bittrex) SubscribeTradeUpdates(market string, trades chan<- StreamTrade
 
 	err := doAsyncTimeout(
 		func() error {
-			return client.Connect("https", WSBASE, []string{WSHUB})
+			return client.Connect("https", WS_BASE, []string{WS_HUB})
 		}, func(err error) {
 			if err == nil {
 				client.Close()
@@ -169,7 +180,7 @@ func (b *Bittrex) SubscribeTradeUpdates(market string, trades chan<- StreamTrade
 
 	defer client.Close()
 
-	_, err = client.CallHub(WSHUB, "Subscribe", []interface{}{"heartbeat", "trade_" + market})
+	_, err = client.CallHub(WS_HUB, "Subscribe", []interface{}{"heartbeat", "trade_" + market})
 	if err != nil {
 		return err
 	}

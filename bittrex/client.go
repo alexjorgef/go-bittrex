@@ -14,6 +14,11 @@ import (
 	"time"
 )
 
+const (
+	API_BASE    = "https://api.bittrex.com/" // HTTP API endpoint
+	API_VERSION = "v3"                       // API version
+)
+
 type Client struct {
 	apiKey      string
 	apiSecret   string
@@ -102,7 +107,7 @@ func (c *Client) do(method string, resource string, payload string, authNeeded b
 	if strings.HasPrefix(resource, "http") {
 		rawurl = resource
 	} else {
-		rawurl = fmt.Sprintf("%s%s/%s", APIBASE, APIVERSION, resource)
+		rawurl = fmt.Sprintf("%s%s/%s", API_BASE, API_VERSION, resource)
 	}
 
 	req, err := http.NewRequest(method, rawurl, strings.NewReader(payload))

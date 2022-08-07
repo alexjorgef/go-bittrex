@@ -109,7 +109,6 @@ func main() {
     	- [ ] GET /addresses/{currencySymb
     - [ ] Balances
     	- [ ] GET /balances
-    	- [ ] HEAD /balances
     	- [ ] GET /balances/{currencySymbo
     - [ ] Batch
 		- [ ] POST /batch
@@ -118,14 +117,12 @@ func main() {
 		- [ ] DELETE /conditional-orders/{conditionalOrderId}
 		- [ ] GET /conditional-orders/closed
 		- [ ] GET /conditional-orders/open
-		- [ ] HEAD /conditional-orders/open
 		- [ ] POST /conditional-orders
-    - [ ] Currencies
+    - [X] Currencies
 		- [X] GET /currencies
 		- [X] GET /currencies/{symbol}
     - [ ] Deposits
 		- [ ] GET /deposits/open
-		- [ ] HEAD /deposits/open
 		- [ ] GET /deposits/closed
 		- [ ] GET /deposits/ByTxId/{txId}
 		- [ ] GET /deposits/{depositId}
@@ -133,30 +130,23 @@ func main() {
 		- [ ] GET /executions/{executionId}
 		- [ ] GET /executions
 		- [ ] GET /executions/last-id
-		- [ ] HEAD /executions/last-id
     - [ ] FundsTransferMethods
 		- [ ] GET /funds-transfer-methods/{fundsTransferMethodId}
-    - [ ] Markets
+    - [X] Markets
 		- [X] GET /markets
 		- [X] GET /markets/summaries
-		- [ ] HEAD /markets/summaries
 		- [X] GET /markets/tickers
-		- [ ] HEAD /markets/tickers
 		- [X] GET /markets/{marketSymbol}/ticker
-		- [ ] GET /markets/{marketSymbol}
+		- [X] GET /markets/{marketSymbol}
 		- [X] GET /markets/{marketSymbol}/summary
 		- [X] GET /markets/{marketSymbol}/orderbook
-		- [ ] HEAD /markets/{marketSymbol}/orderbook
 		- [X] GET /markets/{marketSymbol}/trades
-		- [ ] HEAD /markets/{marketSymbol}/trade
-		- [ ] GET /markets/{marketSymbol}/candles/{candleType}/{candleInterval}/recent
-		- [ ] HEAD /markets/{marketSymbol}/candles/{candleType}/{candleInterval}/recent
-		- [ ] GET /markets/{marketSymbol}/candles/{candleType}/{candleInterval}/historical/{year}/{month}/{day}
+		- [X] GET /markets/{marketSymbol}/candles/{candleType}/{candleInterval}/recent
+		- [X] GET /markets/{marketSymbol}/candles/{candleType}/{candleInterval}/historical/{year}/{month}/{day}
     - [ ] Orders
 		- [ ] GET /orders/closed
 		- [ ] GET /orders/open
 		- [ ] DELETE /orders/open
-		- [ ] HEAD /orders/open
 		- [ ] GET /orders/{orderId}
 		- [ ] DELETE /orders/{orderId}
 		- [ ] GET /orders/{orderId}/executions

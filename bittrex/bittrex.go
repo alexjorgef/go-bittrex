@@ -5,22 +5,20 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
 )
 
 const (
-	APIBASE    = "https://api.bittrex.com/" // HTTP API endpoint
-	WSBASE     = "socket-v3.bittrex.com"    // WS API endpoint
-	APIVERSION = "v3"                       // API version
-	WSHUB      = "C3"                       // SignalR main hub
+	CANDLETYPE_TRADE    = "TRADE"
+	CANDLETYPE_MIDPOINT = "MIDPOINT"
 
-	CHANNEL_ORDERBOOK = "orderBook"
-	CHANNEL_TICKER    = "ticker"
-	CHANNEL_ORDER     = "order"
-	CHANNEL_TRADE     = "trade"
-	CHANNEL_HEARTBEAT = "heartbeat"
+	INTERVAL_DAY1    = "DAY_1"
+	INTERVAL_HOUR1   = "HOUR_1"
+	INTERVAL_MINUTE5 = "MINUTE_5"
+	INTERVAL_MINUTE1 = "MINUTE_1"
 )
 
 type Bittrex struct {
@@ -120,6 +118,17 @@ func (b *Bittrex) GetTicker(marketSymbol string) (ticker Ticker, err error) {
 	return
 }
 
+// Retrieve the ticker for a specific market.
+func (b *Bittrex) GetMarket(marketSymbol string) (market Market, err error) {
+	r, err := b.client.do("GET", "markets/"+strings.ToUpper(marketSymbol), "", false)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(r, &market)
+	return
+}
+
 // Retrieve summary of the last 24 hours of activity for a specific market.
 func (b *Bittrex) GetSummary(marketSymbol string) (marketSummary MarketSummary, err error) {
 	r, err := b.client.do("GET", "markets/"+strings.ToUpper(marketSymbol)+"/summary", "", false)
@@ -157,6 +166,104 @@ func (b *Bittrex) GetTrades(marketSymbol string) (trades []Trade, err error) {
 	}
 
 	err = json.Unmarshal(r, &trades)
+	return
+}
+
+type GetCandlesOpts struct {
+	CandleType string
+}
+
+// Retrieve recent candles for a specific market and candle interval.
+//   The maximum age of the returned candles depends on the interval as follows:
+//   (MINUTE_1: 1 day, MINUTE_5: 1 day, HOUR_1: 31 days, DAY_1: 366 days).
+//   Candles for intervals without any trading activity will match the previous close and volume will be zero.
+func (b *Bittrex) GetCandles(marketSymbol string, candleInterval string) (candles []Candle, err error) {
+	return b.GetCandlesWithOpts(marketSymbol, candleInterval, &GetCandlesOpts{})
+}
+
+// Retrieve recent candles for a specific market and candle interval.
+//   The maximum age of the returned candles depends on the interval as follows:
+//   (MINUTE_1: 1 day, MINUTE_5: 1 day, HOUR_1: 31 days, DAY_1: 366 days).
+//   Candles for intervals without any trading activity will match the previous close and volume will be zero.
+func (b *Bittrex) GetCandlesWithOpts(marketSymbol string, candleInterval string, opts *GetCandlesOpts) (candles []Candle, err error) {
+	v := reflect.ValueOf(opts)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		return candles, errors.New("invalid opts pointer")
+	}
+
+	endpoint := "markets/" + strings.ToUpper(marketSymbol) + "/candles/" + strings.ToUpper(candleInterval) + "/recent"
+	if !reflect.DeepEqual(opts, &GetCandlesOpts{}) {
+		if len(v.Elem().Field(0).Interface().(string)) > 0 {
+			endpoint = "markets/" + strings.ToUpper(marketSymbol) + "/candles/" + strings.ToUpper(opts.CandleType) + "/" + strings.ToUpper(candleInterval) + "/recent"
+		}
+	}
+
+	r, err := b.client.do("GET", endpoint, "", false)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(r, &candles)
+	return
+}
+
+type GetCandlesHistoryOpts struct {
+	CandleType   string
+	HistoryMonth int
+	HistoryDay   int
+}
+
+// Retrieve recent candles for a specific market and candle interval.
+//   The date range of returned candles depends on the interval as follows:
+//   (MINUTE_1: 1 day, MINUTE_5: 1 day, HOUR_1: 31 days, DAY_1: 366 days).
+//   Candles for intervals without any trading activity will match the previous close and volume will be zero.
+func (b *Bittrex) GetCandlesHistory(marketSymbol string, candleInterval string, year int) (candles []Candle, err error) {
+	return b.GetCandlesHistoryWithOpts(marketSymbol, candleInterval, year, &GetCandlesHistoryOpts{})
+}
+
+// Retrieve recent candles for a specific market and candle interval.
+//   The date range of returned candles depends on the interval as follows:
+//   (MINUTE_1: 1 day, MINUTE_5: 1 day, HOUR_1: 31 days, DAY_1: 366 days).
+//   Candles for intervals without any trading activity will match the previous close and volume will be zero.
+func (b *Bittrex) GetCandlesHistoryWithOpts(marketSymbol string, candleInterval string, year int, opts *GetCandlesHistoryOpts) (candles []Candle, err error) {
+	v := reflect.ValueOf(opts)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		return candles, errors.New("invalid opts pointer")
+	}
+
+	endpoint := "markets/" + strings.ToUpper(marketSymbol) + "/candles/" + strings.ToUpper(candleInterval) + "/historical/" + strconv.Itoa(year)
+	if !reflect.DeepEqual(opts, &GetCandlesHistoryOpts{}) {
+		var endpointHistPart string
+		if candleInterval == INTERVAL_DAY1 {
+			endpointHistPart = "/historical/" + strconv.Itoa(year)
+		}
+		if candleInterval == INTERVAL_HOUR1 {
+			if v.Elem().Field(1).Interface().(int) != 0 {
+				endpointHistPart = "/historical/" + strconv.Itoa(year) + "/" + strconv.Itoa(opts.HistoryMonth)
+			} else {
+				return candles, errors.New("invalid HistoryMonth option")
+			}
+		}
+		if candleInterval == INTERVAL_MINUTE5 || candleInterval == INTERVAL_MINUTE1 {
+			if v.Elem().Field(1).Interface().(int) != 0 && v.Elem().Field(2).Interface().(int) != 0 {
+				endpointHistPart = "/historical/" + strconv.Itoa(year) + "/" + strconv.Itoa(opts.HistoryMonth) + "/" + strconv.Itoa(opts.HistoryDay)
+			} else {
+				return candles, errors.New("invalid HistoryDay option")
+			}
+		}
+		if len(v.Elem().Field(0).Interface().(string)) > 0 {
+			endpoint = "markets/" + strings.ToUpper(marketSymbol) + "/candles/" + strings.ToUpper(opts.CandleType) + "/" + strings.ToUpper(candleInterval) + endpointHistPart
+		} else {
+			endpoint = "markets/" + strings.ToUpper(marketSymbol) + "/candles/" + strings.ToUpper(candleInterval) + endpointHistPart
+		}
+	}
+
+	r, err := b.client.do("GET", endpoint, "", false)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(r, &candles)
 	return
 }
 
