@@ -38,6 +38,8 @@ func main() {
 
 ## Examples
 
+Check more advanced examples [here](examples/).
+
 ### REST API
 
 ```go
@@ -74,12 +76,14 @@ import (
 
 func main() {
 	client := bittrex.New("", "")
-	ch := make(chan bittrex.Trade)
+
+	ch := make(chan bittrex.StreamTrade)
 	errCh := make(chan error)
 	stopCh := make(chan bool)
-	go func() {
-		errCh <- bt.SubscribeTradeUpdates("BTC-USD", ch, stopCh)
-	}()
+
+	go func() { errCh <- client.SubscribeTradeUpdates("BTC-USD", ch, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ETH-USD", ch, stopCh) }()
+
 	select {
 	case trade := <-ch:
 		fmt.Printf("%+v\n", trade)
@@ -92,108 +96,43 @@ func main() {
 ## Todos
 
 - [ ] REST API
-    - [ ] Account
-		- [ ] GET /account
-		- [ ] GET /account/fees/fiat
-		- [ ] GET /account/fees/fiat/{currencySymbol}
-		- [ ] GET /account/fees/trading
-		- [ ] GET /account/fees/trading/{marketSymbol}
-		- [ ] GET /account/volume
-		- [ ] GET /account/permissions/markets
-		- [ ] GET /account/permissions/markets/{marketSymbol}
-		- [ ] GET /account/permissions/currencies
-		- [ ] GET /account/permissions/cu
-    - [ ] Addresses
-    	- [ ] GET /addresses
-    	- [ ] POST /addresses
-    	- [ ] GET /addresses/{currencySymb
-    - [ ] Balances
-    	- [ ] GET /balances
-    	- [ ] GET /balances/{currencySymbo
-    - [ ] Batch
-		- [ ] POST /batch
+    - [ ] Account ([#13][i13])
+    - [ ] Addresses ([#13][i13])
+    - [ ] Balances ([#13][i13])
+    - [ ] Batch ([#13][i13])
     - [ ] ConditionalOrders
-		- [ ] GET /conditional-orders/{conditionalOrderId}
-		- [ ] DELETE /conditional-orders/{conditionalOrderId}
-		- [ ] GET /conditional-orders/closed
-		- [ ] GET /conditional-orders/open
-		- [ ] POST /conditional-orders
     - [X] Currencies
-		- [X] GET /currencies
-		- [X] GET /currencies/{symbol}
-    - [ ] Deposits
-		- [ ] GET /deposits/open
-		- [ ] GET /deposits/closed
-		- [ ] GET /deposits/ByTxId/{txId}
-		- [ ] GET /deposits/{depositId}
-    - [ ] Executions
-		- [ ] GET /executions/{executionId}
-		- [ ] GET /executions
-		- [ ] GET /executions/last-id
-    - [ ] FundsTransferMethods
-		- [ ] GET /funds-transfer-methods/{fundsTransferMethodId}
+    - [ ] Deposits ([#13][i13])
+    - [ ] Executions ([#13][i13])
+    - [ ] FundsTransferMethods ([#13][i13])
     - [X] Markets
-		- [X] GET /markets
-		- [X] GET /markets/summaries
-		- [X] GET /markets/tickers
-		- [X] GET /markets/{marketSymbol}/ticker
-		- [X] GET /markets/{marketSymbol}
-		- [X] GET /markets/{marketSymbol}/summary
-		- [X] GET /markets/{marketSymbol}/orderbook
-		- [X] GET /markets/{marketSymbol}/trades
-		- [X] GET /markets/{marketSymbol}/candles/{candleType}/{candleInterval}/recent
-		- [X] GET /markets/{marketSymbol}/candles/{candleType}/{candleInterval}/historical/{year}/{month}/{day}
-    - [ ] Orders
-		- [ ] GET /orders/closed
-		- [ ] GET /orders/open
-		- [ ] DELETE /orders/open
-		- [ ] GET /orders/{orderId}
-		- [ ] DELETE /orders/{orderId}
-		- [ ] GET /orders/{orderId}/executions
-		- [ ] POST /orders
+    - [ ] Orders ([#13][i13])
 	- [X] Ping
-		- [X] GET /ping
-    - [ ] Subaccounts
-		- [ ] GET /subaccounts
-		- [ ] POST /subaccounts
-		- [ ] GET /subaccounts/{subaccountId}
-		- [ ] GET /subaccounts/withdrawals/open
-		- [ ] GET /subaccounts/withdrawals/closed
-		- [ ] GET /subaccounts/deposits/open
-		- [ ] GET /subaccounts/deposits/cl
-    - [ ] Transfers
-		- [ ] GET /transfers/sent
-		- [ ] GET /transfers/received
-		- [ ] GET /transfers/{transferId}
-		- [ ] POST /transfers
-    - [ ] Withdrawals
-		- [ ] GET /withdrawals/open
-		- [ ] GET /withdrawals/closed
-		- [ ] GET /withdrawals/ByTxId/{txId}
-		- [ ] GET /withdrawals/{withdrawalId}
-		- [ ] DELETE /withdrawals/{withdrawalId}
-		- [ ] POST /withdrawals
-		- [ ] GET /withdrawals/allowed-addr
+    - [ ] Subaccounts ([#13][i13])
+    - [ ] Transfers ([#13][i13])
+    - [ ] Withdrawals ([#13][i13])
 - [ ] Websocket API
-    - [ ] Authenticate
-    - [ ] IsAuthenticated
-    - [ ] Subscribe
+    - [ ] Authenticate ([#13][i13])
+    - [ ] IsAuthenticated ([#13][i13])
+    - [X] Subscribe
     - [ ] Unsubscribe
 	- [ ] Streams
-		- [ ] Balance
+		- [ ] Balance ([#13][i13])
 		- [ ] Candle
-		- [ ] Conditional Order
-		- [ ] Deposit
-		- [ ] Execution
-		- [ ] Heartbeat
+		- [ ] Conditional Order ([#13][i13])
+		- [ ] Deposit ([#13][i13])
+		- [ ] Execution ([#13][i13])
+		- [X] Heartbeat
 		- [ ] Market Summaries
 		- [ ] Market Summary
-		- [ ] Order
+		- [ ] Order ([#13][i13])
 		- [ ] Orderbook
 		- [ ] Tickers
 		- [ ] Ticker
-		- [x] Trade
+		- [X] Trade
 
 ## References
 
 This repository is a cleaned & updated version of [toorop/go-bittrex](https://github.com/toorop/go-bittrex) repo (inspired from [alexeykaravan/go-bittrex-v3](https://github.com/alexeykaravan/go-bittrex-v3) fork.
+
+[i13]: https://github.com/alexjorgef/go-bittrex/issues/13

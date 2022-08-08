@@ -7,4 +7,20 @@ lint:
 
 .PHONY: test
 test:
+	go test -v -race -coverprofile=coverage.txt -covermode=atomic ./bittrex
+
+.PHONY: test-examples
+test-examples:
+	go test -v -race -coverprofile=coverage.txt -covermode=atomic ./examples
+
+.PHONY: test-examples-http
+test-examples-http:
+	go test -v -race -coverprofile=coverage.txt -covermode=atomic ./examples -run TestFlagsHttp
+
+.PHONY: test-examples-ws
+test-examples-ws:
+	go test -v -race -coverprofile=coverage.txt -covermode=atomic ./examples -run TestFlagsWs
+
+.PHONY: test-all
+test-all:
 	go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
