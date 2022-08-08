@@ -31,7 +31,7 @@ const (
 	STREAM_HEARTBEAT = "heartbeat"
 )
 
-type Responce struct {
+type Response struct {
 	Success   bool        `json:"Success"`
 	ErrorCode interface{} `json:"ErrorCode"`
 }
@@ -64,7 +64,7 @@ func doAsyncTimeout(f func() error, tmFunc func(error), timeout time.Duration) e
 
 // Some streams contain private data and require that you be authenticated prior to subscribing.
 func (b *Bittrex) Authentication(c *signalr.Client) error {
-	r := &Responce{}
+	r := &Response{}
 
 	apiTimestamp := time.Now().UnixNano() / 1000000
 	UUID := uuid.New().String()
