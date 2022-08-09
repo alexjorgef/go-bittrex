@@ -6,15 +6,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type StreamTrade struct {
-	Symbol     string
-	ID         string
-	ExecutedAt time.Time
-	Quantity   decimal.Decimal
-	Rate       decimal.Decimal
-	TakerSide  string
-}
-
 type TradeSlice struct {
 	Deltas []struct {
 		ID         string          `json:"id"`

@@ -111,7 +111,10 @@ func realMainHttp() int {
 	fmt.Printf("\tPercentChange:\t%s\n", summary.PercentChange.String())
 	fmt.Printf("\tUpdatedAt:    \t%s\n", summary.UpdatedAt)
 
-	orderBooks, err := client.GetOrderBook("ETH-USD", 0)
+	orderBooksOpts := &bittrex.GetOrderBookOpts{
+		Depth: 500,
+	}
+	orderBooks, err := client.GetOrderBookWithOpts("ETH-USD", orderBooksOpts)
 	if err != nil {
 		return 1
 	}
