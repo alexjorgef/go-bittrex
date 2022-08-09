@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['1.17.13', '1.18.5', '1.19']
+        go: ['1.17', '1.18', '1.19']
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -24,4 +24,4 @@ jobs:
       - name: Run Golint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.39
+          version: v1.48
