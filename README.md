@@ -16,28 +16,6 @@ go get github.com/alexjorgef/go-bittrex
 
 ## Quick Start
 
-```go
-package main
-
-import (
-	"fmt"
-	"log"
-
-	"github.com/alexjorgef/go-bittrex/bittrex"
-)
-
-func main() {
-	client := bittrex.New("", "")
-	currency, err := client.GetCurrency("ETH")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Printf("%+v\n", currency)
-}
-```
-
-## Examples
-
 Check more advanced examples [here](examples/).
 
 ### REST API
@@ -124,7 +102,7 @@ func main() {
     - [ ] Addresses ([#13][i13])
     - [ ] Balances ([#13][i13])
     - [ ] Batch ([#13][i13])
-    - [ ] ConditionalOrders
+    - [ ] ConditionalOrders ([#13][i13])
     - [X] Currencies
     - [ ] Deposits ([#13][i13])
     - [ ] Executions ([#13][i13])
@@ -157,6 +135,6 @@ func main() {
 
 ## References
 
-This repository is a cleaned & updated version of [toorop/go-bittrex](https://github.com/toorop/go-bittrex) repo (inspired from [alexeykaravan/go-bittrex-v3](https://github.com/alexeykaravan/go-bittrex-v3) fork.
+This repository is a cleaned & updated version of [toorop/go-bittrex](https://github.com/toorop/go-bittrex) repo (inspired from [alexeykaravan/go-bittrex-v3](https://github.com/alexeykaravan/go-bittrex-v3) fork).
 
 [i13]: https://github.com/alexjorgef/go-bittrex/issues/13
