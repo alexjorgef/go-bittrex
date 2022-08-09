@@ -125,7 +125,7 @@ func main() {
 		- [ ] Deposit ([#13][i13])
 		- [ ] Execution ([#13][i13])
 		- [X] Heartbeat
-		- [ ] Market Summaries
+		- [X] Market Summaries
 		- [ ] Market Summary
 		- [ ] Order ([#13][i13])
 		- [X] Orderbook

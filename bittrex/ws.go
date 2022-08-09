@@ -24,13 +24,14 @@ const (
 	WS_BASE = "socket-v3.bittrex.com" // WS API endpoint
 	WS_HUB  = "C3"                    // SignalR main hub
 
-	STREAM_CANDLE    = "candle"
-	STREAM_ORDERBOOK = "orderBook"
-	STREAM_TICKER    = "ticker"
-	STREAM_TICKERS   = "tickers"
-	STREAM_ORDER     = "order"
-	STREAM_TRADE     = "trade"
-	STREAM_HEARTBEAT = "heartbeat"
+	STREAM_CANDLE          = "candle"
+	STREAM_ORDERBOOK       = "orderBook"
+	STREAM_TICKER          = "ticker"
+	STREAM_TICKERS         = "tickers"
+	STREAM_MARKETSUMMARIES = "marketSummaries"
+	STREAM_ORDER           = "order"
+	STREAM_TRADE           = "trade"
+	STREAM_HEARTBEAT       = "heartbeat"
 )
 
 type Response struct {
@@ -96,6 +97,113 @@ func (b *Bittrex) Authentication(c *signalr.Client) error {
 	}
 
 	return nil
+}
+
+// Provides regular updates of the current market summary data for all markets.
+//   Market summary data is different from candles in that it is a rolling 24-hour number as opposed to data for a fixed interval like candles.
+func (b *Bittrex) SubscribeMarketSummariesUpdates(marketSummaries chan<- MarketSummary, stop <-chan bool) error {
+	const timeout = 5 * time.Second
+	client := signalr.NewWebsocketClient()
+
+	var updTime int64
+
+	client.OnClientMethod = func(hub string, method string, messages []json.RawMessage) {
+		if hub != WS_HUB {
+			return
+		}
+
+		switch method {
+		case STREAM_HEARTBEAT, STREAM_MARKETSUMMARIES:
+			atomic.StoreInt64(&updTime, time.Now().Unix())
+		default:
+			fmt.Printf("unsupported message type: %s %v\n", method, messages)
+		}
+
+		for _, msg := range messages {
+			dbuf, err := base64.StdEncoding.DecodeString(strings.Trim(string(msg), `"`))
+			if err != nil {
+				fmt.Printf("DecodeString error: %s %s\n", err.Error(), string(msg))
+				continue
+			}
+
+			r, err := zlib.NewReader(bytes.NewReader(append([]byte{120, 156}, dbuf...)))
+			if err != nil {
+				fmt.Printf("unzip error %s %s \n", err.Error(), string(msg))
+				continue
+			}
+			defer r.Close()
+
+			var out bytes.Buffer
+			written, _ := io.Copy(&out, r)
+
+			if written > 0 {
+				marketSummarySlice := MarketSummarySlice{}
+				err = json.Unmarshal(out.Bytes(), &marketSummarySlice)
+				if err != nil {
+					fmt.Printf("unmarshal error %s\n", err.Error())
+					continue
+				}
+
+				for _, delta := range marketSummarySlice.Deltas {
+					marketSummary := MarketSummary{}
+					marketSummary.Symbol = delta.Symbol
+					marketSummary.High = delta.High
+					marketSummary.Low = delta.Low
+					marketSummary.Volume = delta.Volume
+					marketSummary.QuoteVolume = delta.QuoteVolume
+					marketSummary.PercentChange = delta.PercentChange
+					marketSummary.UpdatedAt = delta.UpdatedAt
+					select {
+					case marketSummaries <- marketSummary:
+					default:
+						if b.client.debug {
+							log.Printf("marketSummaries send err: %d\n", len(marketSummaries))
+						}
+					}
+				}
+			}
+		}
+	}
+
+	client.OnMessageError = func(err error) {
+		fmt.Printf("ERROR OCCURRED: %s\n", err.Error())
+	}
+
+	err := doAsyncTimeout(
+		func() error {
+			return client.Connect("https", WS_BASE, []string{WS_HUB})
+		}, func(err error) {
+			if err == nil {
+				client.Close()
+			}
+		}, timeout)
+	if err != nil {
+		return err
+	}
+
+	defer client.Close()
+
+	_, err = client.CallHub(WS_HUB, "Subscribe", []interface{}{"heartbeat", "market_summaries"})
+	if err != nil {
+		return err
+	}
+
+	tick := time.NewTicker(1 * time.Minute)
+
+	for {
+		select {
+		case signal := <-stop:
+			if signal {
+				return errors.New("client.stop")
+			}
+		case <-client.DisconnectedChannel:
+			return errors.New("client.DisconnectedChannel")
+		case <-tick.C:
+			if time.Now().Unix()-atomic.LoadInt64(&updTime) > 60 {
+				return errors.New("marketSummaries messages timeout")
+			}
+		}
+	}
 }
 
 // TODO: Add a default and a function with parameters for candleInterval
@@ -207,7 +315,6 @@ func (b *Bittrex) SubscribeCandleUpdates(market string, candles chan<- Candle, s
 				return errors.New("candle messages timeout")
 			}
 		}
-
 	}
 }
 

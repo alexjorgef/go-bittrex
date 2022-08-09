@@ -41,6 +41,39 @@ func TestTradeStream_SubscribeCandleUpdates(t *testing.T) {
 	assert.Greater(t, close, float64(0))
 }
 
+func TestTradeStream_SubscribeMarketSummariesUpdates(t *testing.T) {
+	client := New("", "")
+	ch := make(chan MarketSummary)
+	errCh := make(chan error)
+	stopCh := make(chan bool)
+	go func() { errCh <- client.SubscribeMarketSummariesUpdates(ch, stopCh) }()
+	var err error
+	var marketSummary MarketSummary
+	select {
+	case marketSummary = <-ch:
+	case err = <-errCh:
+	case <-time.NewTicker(3 * time.Minute).C:
+		stopCh <- true
+		err = errors.New("timeout")
+	}
+	assert.NoError(t, err)
+	assert.NotEmpty(t, marketSummary.Symbol)
+	assert.NotEmpty(t, marketSummary.High)
+	high, _ := marketSummary.High.Float64()
+	assert.Greater(t, high, float64(0))
+	assert.NotEmpty(t, marketSummary.Low)
+	low, _ := marketSummary.Low.Float64()
+	assert.Greater(t, low, float64(0))
+	assert.NotEmpty(t, marketSummary.Volume)
+	volume, _ := marketSummary.Volume.Float64()
+	assert.Greater(t, volume, float64(0))
+	assert.NotEmpty(t, marketSummary.QuoteVolume)
+	quoteVolume, _ := marketSummary.QuoteVolume.Float64()
+	assert.Greater(t, quoteVolume, float64(0))
+	assert.NotEmpty(t, marketSummary.PercentChange)
+	assert.NotEmpty(t, marketSummary.UpdatedAt)
+}
+
 func TestTradeStream_SubscribeOrderbookUpdates(t *testing.T) {
 	client := New("", "")
 	ch := make(chan OrderBook)
@@ -163,5 +196,6 @@ func TestTradeStream_SubscribeTradeUpdates(t *testing.T) {
 	assert.NotEmpty(t, trade.ExecutedAt)
 	assert.NotEmpty(t, trade.Rate)
 	assert.NotEmpty(t, trade.Quantity)
-	assert.Greater(t, trade.Rate.IntPart(), int64(0))
+	rate, _ := trade.Rate.Float64()
+	assert.Greater(t, rate, float64(0))
 }
