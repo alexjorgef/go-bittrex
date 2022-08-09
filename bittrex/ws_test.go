@@ -29,11 +29,13 @@ func TestTradeStream_SubscribeOrderbookUpdates(t *testing.T) {
 	assert.True(t, (len(orderbook.Bid) > 0 || len(orderbook.Ask) > 0))
 	if len(orderbook.Bid) > 0 {
 		assert.NotEmpty(t, orderbook.Bid)
-		assert.Greater(t, orderbook.Bid[0].Rate.IntPart(), int64(0))
+		bidRate, _ := orderbook.Bid[0].Rate.Float64()
+		assert.Greater(t, bidRate, float64(0))
 	}
 	if len(orderbook.Ask) > 0 {
 		assert.NotEmpty(t, orderbook.Ask)
-		assert.Greater(t, orderbook.Ask[0].Rate.IntPart(), int64(0))
+		askRate, _ := orderbook.Ask[0].Rate.Float64()
+		assert.Greater(t, askRate, float64(0))
 	}
 }
 
@@ -59,7 +61,8 @@ func TestTradeStream_SubscribeTickerUpdates(t *testing.T) {
 	assert.NotEmpty(t, ticker.AskRate)
 	assert.NotEmpty(t, ticker.BidRate)
 	assert.NotEmpty(t, ticker.LastTradeRate)
-	assert.Greater(t, ticker.LastTradeRate.IntPart(), int64(0))
+	rate, _ := ticker.LastTradeRate.Float64()
+	assert.Greater(t, rate, float64(0))
 }
 
 func TestTradeStream_SubscribeTradeUpdates(t *testing.T) {

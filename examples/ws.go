@@ -37,7 +37,6 @@ func realMainWs() int {
 	for start := time.Now(); time.Since(start) < (5 * time.Second); {
 		select {
 		case ticker := <-chTickers:
-			// fmt.Printf("\t%s %s %s %s\n", ticker.Symbol, ticker.AskRate.String(), ticker.BidRate.String(), ticker.LastTradeRate.String())
 			fmt.Printf("\t%+v\n", ticker)
 		case err := <-errCh:
 			fmt.Printf("\t%+v\n", err)
