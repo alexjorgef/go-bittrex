@@ -126,7 +126,7 @@ func main() {
 		- [ ] Execution ([#13][i13])
 		- [X] Heartbeat
 		- [X] Market Summaries
-		- [ ] Market Summary
+		- [X] Market Summary
 		- [ ] Order ([#13][i13])
 		- [X] Orderbook
 		- [X] Tickers
