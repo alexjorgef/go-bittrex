@@ -96,8 +96,106 @@ func (b *Bittrex) Authentication(c *signalr.Client) error {
 	return nil
 }
 
+func (b *Bittrex) SubscribeTickerUpdates(market string, tickers chan<- Ticker, stop <-chan bool) error {
+	const timeout = 15 * time.Second
+	client := signalr.NewWebsocketClient()
+
+	var updTime int64
+
+	client.OnClientMethod = func(hub string, method string, messages []json.RawMessage) {
+
+		if hub != WS_HUB {
+			return
+		}
+
+		switch method {
+		case STREAM_HEARTBEAT, STREAM_TICKER:
+			atomic.StoreInt64(&updTime, time.Now().Unix())
+
+		default:
+			fmt.Printf("unsupported message type: %s\n", method)
+		}
+
+		for _, msg := range messages {
+			dbuf, err := base64.StdEncoding.DecodeString(strings.Trim(string(msg), `"`))
+			if err != nil {
+				fmt.Printf("DecodeString error: %s %s\n", err.Error(), string(msg))
+				continue
+			}
+
+			r, err := zlib.NewReader(bytes.NewReader(append([]byte{120, 156}, dbuf...)))
+			if err != nil {
+				fmt.Printf("unzip error %s %s\n", err.Error(), string(msg))
+				continue
+			}
+			defer r.Close()
+
+			var out bytes.Buffer
+			written, _ := io.Copy(&out, r)
+
+			if written > 0 {
+				ticker := Ticker{}
+				err = json.Unmarshal(out.Bytes(), &ticker)
+				if err != nil {
+					fmt.Printf("unmarshal error %s\n", err.Error())
+					continue
+				}
+
+				select {
+				case tickers <- ticker:
+				default:
+					if b.client.debug {
+						log.Printf("trade send err: %s %d \n", market, len(tickers))
+					}
+				}
+			}
+		}
+	}
+
+	client.OnMessageError = func(err error) {
+		fmt.Printf("ERROR OCCURRED: %s\n", err.Error())
+	}
+
+	err := doAsyncTimeout(
+		func() error {
+			return client.Connect("https", WS_BASE, []string{WS_HUB})
+		}, func(err error) {
+			if err == nil {
+				client.Close()
+			}
+		}, timeout)
+	if err != nil {
+		return err
+	}
+
+	defer client.Close()
+
+	_, err = client.CallHub(WS_HUB, "Subscribe", []interface{}{"heartbeat", "ticker_" + market})
+	if err != nil {
+		return err
+	}
+
+	tick := time.NewTicker(1 * time.Minute)
+
+	// Blocking loop
+	for {
+		select {
+		case signal := <-stop:
+			if signal {
+				return errors.New("client.stop")
+			}
+		case <-client.DisconnectedChannel:
+			return errors.New("client.DisconnectedChannel")
+		case <-tick.C:
+			if time.Now().Unix()-atomic.LoadInt64(&updTime) > 60 {
+				return errors.New("trade messages timeout")
+			}
+		}
+	}
+}
+
 // Sends a message with the quantity and rate of trades on a market as they occur.
-func (b *Bittrex) SubscribeTradeUpdates(market string, trades chan<- StreamTrade, stop <-chan bool) error {
+func (b *Bittrex) SubscribeTradeUpdates(market string, trades chan<- Trade, stop <-chan bool) error {
 	const timeout = 15 * time.Second
 	client := signalr.NewWebsocketClient()
 
@@ -142,7 +240,7 @@ func (b *Bittrex) SubscribeTradeUpdates(market string, trades chan<- StreamTrade
 					continue
 				}
 
-				trade := StreamTrade{Symbol: tradeSlice.MarketSymbol}
+				trade := Trade{Symbol: tradeSlice.MarketSymbol}
 
 				for _, delta := range tradeSlice.Deltas {
 					trade.ID = delta.ID

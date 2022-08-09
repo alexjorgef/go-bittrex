@@ -68,13 +68,13 @@ func TestMarketsService_GetSummary(t *testing.T) {
 
 func TestMarketsService_GetOrderBook(t *testing.T) {
 	bt := New("", "")
-	orderBook, err := bt.GetOrderBook("ETH-USD", 0)
+	orderBook, err := bt.GetOrderBook("ETH-USD")
 	assert.NoError(t, err)
 	assert.Len(t, orderBook.Ask, 25)
 	assert.Len(t, orderBook.Bid, 25)
-	orderBook, err = bt.GetOrderBook("ETH-USD", 2)
+	orderBook, err = bt.GetOrderBookWithOpts("ETH-USD", &GetOrderBookOpts{Depth: 2})
 	assert.Error(t, err)
-	orderBook, err = bt.GetOrderBook("ETH-USD", 1)
+	orderBook, err = bt.GetOrderBookWithOpts("ETH-USD", &GetOrderBookOpts{Depth: 1})
 	assert.NoError(t, err)
 	assert.Len(t, orderBook.Ask, 1)
 	assert.Len(t, orderBook.Bid, 1)

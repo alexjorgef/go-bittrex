@@ -140,16 +140,33 @@ func (b *Bittrex) GetSummary(marketSymbol string) (marketSummary MarketSummary, 
 	return
 }
 
+type GetOrderBookOpts struct {
+	Depth int
+}
+
 // Retrieve the order book for a specific market.
-func (b *Bittrex) GetOrderBook(marketSymbol string, depth int) (orderBook OrderBook, err error) {
-	if depth != 1 && depth != 25 && depth != 500 && depth != 0 {
-		return orderBook, errors.New("invalid depth")
-	}
-	if depth == 0 {
-		depth = 25
+func (b *Bittrex) GetOrderBook(marketSymbol string) (orderBook OrderBook, err error) {
+	return b.GetOrderBookWithOpts(marketSymbol, &GetOrderBookOpts{})
+}
+
+// Retrieve the order book for a specific market.
+func (b *Bittrex) GetOrderBookWithOpts(marketSymbol string, opts *GetOrderBookOpts) (orderBook OrderBook, err error) {
+	v := reflect.ValueOf(opts)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		return orderBook, errors.New("invalid opts pointer")
 	}
 
-	r, err := b.client.do("GET", "markets/"+strings.ToUpper(marketSymbol)+"/orderbook?depth="+strconv.Itoa(depth), "", false)
+	endpoint := "markets/" + strings.ToUpper(marketSymbol) + "/orderbook?depth=25"
+	if !reflect.DeepEqual(opts, &GetOrderBookOpts{}) {
+		if v.Elem().Field(0).Interface().(int) != 0 {
+			if opts.Depth != 1 && opts.Depth != 25 && opts.Depth != 500 && opts.Depth != 0 {
+				return orderBook, errors.New("invalid depth")
+			}
+			endpoint = "markets/" + strings.ToUpper(marketSymbol) + "/orderbook?depth=" + strconv.Itoa(opts.Depth)
+		}
+	}
+
+	r, err := b.client.do("GET", endpoint, "", false)
 	if err != nil {
 		return
 	}

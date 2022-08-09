@@ -62,6 +62,7 @@ type OrderBook struct {
 }
 
 type Trade struct {
+	Symbol     string
 	ID         string          `json:"id"`
 	ExecutedAt time.Time       `json:"executedAt"`
 	Quantity   decimal.Decimal `json:"quantity"`
