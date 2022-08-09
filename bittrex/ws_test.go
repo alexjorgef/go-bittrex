@@ -39,6 +39,30 @@ func TestTradeStream_SubscribeOrderbookUpdates(t *testing.T) {
 	}
 }
 
+func TestTradeStream_SubscribeTickersUpdates(t *testing.T) {
+	client := New("", "")
+	ch := make(chan Ticker)
+	errCh := make(chan error)
+	stopCh := make(chan bool)
+	go func() { errCh <- client.SubscribeTickersUpdates(ch, stopCh) }()
+	var err error
+	var ticker Ticker
+	select {
+	case ticker = <-ch:
+	case err = <-errCh:
+	case <-time.NewTicker(3 * time.Minute).C:
+		stopCh <- true
+		err = errors.New("timeout")
+	}
+	assert.NoError(t, err)
+	assert.NotEmpty(t, ticker.Symbol)
+	assert.NotEmpty(t, ticker.AskRate)
+	assert.NotEmpty(t, ticker.BidRate)
+	assert.NotEmpty(t, ticker.LastTradeRate)
+	rate, _ := ticker.LastTradeRate.Float64()
+	assert.Greater(t, rate, float64(0))
+}
+
 func TestTradeStream_SubscribeTickerUpdates(t *testing.T) {
 	client := New("", "")
 	ch := make(chan Ticker)

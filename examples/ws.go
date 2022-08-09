@@ -29,9 +29,9 @@ func realMainWs() int {
 
 	// Subscribe to ticker stream
 	chTickers := make(chan bittrex.Ticker)
-	go func() { errCh <- client.SubscribeTickerUpdates("BTC-USD", chTickers, stopCh) }()
-	go func() { errCh <- client.SubscribeTickerUpdates("ETH-USD", chTickers, stopCh) }()
-	go func() { errCh <- client.SubscribeTickerUpdates("ADA-USD", chTickers, stopCh) }()
+	go func() { errCh <- client.SubscribeTickersUpdates(chTickers, stopCh) }()
+	go func() { errCh <- client.SubscribeTickersUpdates(chTickers, stopCh) }()
+	go func() { errCh <- client.SubscribeTickersUpdates(chTickers, stopCh) }()
 
 	fmt.Printf("Ticker (Symbol, LastTradeRate, BitRate, AskRate):\n")
 	for start := time.Now(); time.Since(start) < (5 * time.Second); {
@@ -43,33 +43,49 @@ func realMainWs() int {
 		}
 	}
 
+	// Subscribe to ticker stream
+	chTicker := make(chan bittrex.Ticker)
+	go func() { errCh <- client.SubscribeTickerUpdates("BTC-USD", chTicker, stopCh) }()
+	go func() { errCh <- client.SubscribeTickerUpdates("ETH-USD", chTicker, stopCh) }()
+	go func() { errCh <- client.SubscribeTickerUpdates("ADA-USD", chTicker, stopCh) }()
+
+	fmt.Printf("Ticker (Symbol, LastTradeRate, BitRate, AskRate):\n")
+	for start := time.Now(); time.Since(start) < (5 * time.Second); {
+		select {
+		case ticker := <-chTicker:
+			fmt.Printf("\t%+v\n", ticker)
+		case err := <-errCh:
+			fmt.Printf("\t%+v\n", err)
+		}
+	}
+
 	// Subscribe to trade stream
-	chTrades := make(chan bittrex.Trade)
-	go func() { errCh <- client.SubscribeTradeUpdates("BTC-USD", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("BTC-USDT", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ETH-USD", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ETH-EUR", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ETH-USDC", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ETH-USDT", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ETH-BTC", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ADA-BTC", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ADA-USD", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ADA-USDT", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ADA-EUR", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ADA-ETH", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("LINK-USD", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("AAVE-USD", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("DOT-USD", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("DOT-USDT", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("DOT-EUR", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("DOT-BTC", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("DOT-ETH", chTrades, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("DOGE-USDT", chTrades, stopCh) }()
+	chTrade := make(chan bittrex.Trade)
+	go func() { errCh <- client.SubscribeTradeUpdates("BTC-USD", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("BTC-USDT", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ETH-USD", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ETH-EUR", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ETH-USDC", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ETH-USDT", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ETH-BTC", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ADA-BTC", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ADA-USD", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ADA-USDT", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ADA-EUR", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("ADA-ETH", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("LINK-USD", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("AAVE-USD", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("DOT-USD", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("DOT-USDT", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("DOT-EUR", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("DOT-BTC", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("DOT-ETH", chTrade, stopCh) }()
+	go func() { errCh <- client.SubscribeTradeUpdates("DOGE-USDT", chTrade, stopCh) }()
 
 	fmt.Printf("Trade (Symbol, ID, ExecutedAt, Quantity, Rate, TakerSide):\n")
 	for start := time.Now(); time.Since(start) < (5 * time.Second); {
 		select {
-		case trade := <-chTrades:
+		case trade := <-chTrade:
 			fmt.Printf("\t%+v\n", trade)
 		case err := <-errCh:
 			fmt.Printf("\t%+v\n", err)

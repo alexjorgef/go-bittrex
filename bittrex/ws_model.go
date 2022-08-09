@@ -18,6 +18,16 @@ type TradeSlice struct {
 	MarketSymbol string `json:"marketSymbol"`
 }
 
+type TickerSlice struct {
+	Sequence int `json:"sequence"`
+	Deltas   []struct {
+		Symbol        string          `json:"symbol"`
+		LastTradeRate decimal.Decimal `json:"lastTradeRate"`
+		BidRate       decimal.Decimal `json:"bidRate"`
+		AskRate       decimal.Decimal `json:"askRate"`
+	}
+}
+
 type OrderBookSlice struct {
 	MarketSymbol string  `json:"marketSymbol"`
 	Depth        int     `json:"depth"`
