@@ -57,8 +57,10 @@ type Order struct {
 }
 
 type OrderBook struct {
-	Bid []Order `json:"bid"`
-	Ask []Order `json:"ask"`
+	Symbol string
+	Depth  int
+	Bid    []Order `json:"bid"`
+	Ask    []Order `json:"ask"`
 }
 
 type Trade struct {

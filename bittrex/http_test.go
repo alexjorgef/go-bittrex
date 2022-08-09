@@ -43,6 +43,8 @@ func TestMarketsService_GetMarketsTickers(t *testing.T) {
 	marketTickers, err := bt.GetMarketsTickers()
 	assert.NoError(t, err)
 	assert.NotEmpty(t, marketTickers[0].Symbol)
+	askRate, _ := marketTickers[0].AskRate.Float64()
+	assert.Greater(t, askRate, float64(0))
 }
 
 func TestMarketsService_GetTicker(t *testing.T) {
@@ -96,7 +98,9 @@ func TestMarketsService_GetCandles(t *testing.T) {
 	candles, err := bt.GetCandles("ETH-USD", INTERVAL_DAY1)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, candles[0].StartsAt)
-	assert.GreaterOrEqual(t, candles[0].High.IntPart(), candles[0].Low.IntPart())
+	high, _ := candles[0].High.Float64()
+	low, _ := candles[0].Low.Float64()
+	assert.GreaterOrEqual(t, high, low)
 	assert.NotEmpty(t, candles[0].Open)
 	assert.NotEmpty(t, candles[0].Close)
 	assert.NotEmpty(t, candles[0].Volume)
@@ -118,7 +122,9 @@ func TestMarketsService_GetCandlesHistory(t *testing.T) {
 	candles, err := bt.GetCandlesHistory("ETH-USD", INTERVAL_DAY1, 2021)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, candles[0].StartsAt)
-	assert.GreaterOrEqual(t, candles[0].High.IntPart(), candles[0].Low.IntPart())
+	high, _ := candles[0].High.Float64()
+	low, _ := candles[0].Low.Float64()
+	assert.GreaterOrEqual(t, high, low)
 	assert.NotEmpty(t, candles[0].Open)
 	assert.NotEmpty(t, candles[0].Close)
 	assert.NotEmpty(t, candles[0].Volume)

@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -124,7 +124,7 @@ func (c *Client) do(method string, resource string, payload string, authNeeded b
 	// Auth
 	if authNeeded {
 		if len(c.apiKey) == 0 || len(c.apiSecret) == 0 {
-			err = errors.New("You need to set API Key and API Secret to call this method")
+			err = errors.New("you need to set API Key and API Secret to call this method")
 			return
 		}
 
@@ -151,7 +151,7 @@ func (c *Client) do(method string, resource string, payload string, authNeeded b
 	}
 
 	defer resp.Body.Close()
-	response, err = ioutil.ReadAll(resp.Body)
+	response, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}

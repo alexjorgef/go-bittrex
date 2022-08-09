@@ -17,3 +17,11 @@ type TradeSlice struct {
 	Sequence     int    `json:"sequence"`
 	MarketSymbol string `json:"marketSymbol"`
 }
+
+type OrderBookSlice struct {
+	MarketSymbol string  `json:"marketSymbol"`
+	Depth        int     `json:"depth"`
+	Sequence     int     `json:"sequence"`
+	BidDeltas    []Order `json:"bidDeltas"`
+	AskDeltas    []Order `json:"askDeltas"`
+}
