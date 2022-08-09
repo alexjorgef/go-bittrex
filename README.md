@@ -70,30 +70,54 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/alexjorgef/go-bittrex/bittrex"
 )
 
 func main() {
+	// Bittrex client
 	client := bittrex.New("", "")
 
-	ch := make(chan bittrex.StreamTrade)
+	// Open channels and start a websocket connection that write to it
+	ch := make(chan bittrex.Ticker)
 	errCh := make(chan error)
 	stopCh := make(chan bool)
+	go func() { errCh <- client.SubscribeTickerUpdates("BTC-USD", ch, stopCh) }()
+	go func() { errCh <- client.SubscribeTickerUpdates("ETH-USD", ch, stopCh) }()
+	go func() { errCh <- client.SubscribeTickerUpdates("ADA-USD", ch, stopCh) }()
 
-	go func() { errCh <- client.SubscribeTradeUpdates("BTC-USD", ch, stopCh) }()
-	go func() { errCh <- client.SubscribeTradeUpdates("ETH-USD", ch, stopCh) }()
-
+	// Read from ticker/error channels only 1 time
 	select {
-	case trade := <-ch:
-		fmt.Printf("%+v\n", trade)
+	case ticker := <-ch:
+		fmt.Printf("%+v\n", ticker)
 	case err := <-errCh:
 		fmt.Printf("%+v\n", err)
+	}
+
+	// Read from channels and stop after 35 seconds
+	for start := time.Now(); time.Since(start) < (35 * time.Second); {
+		select {
+		case ticker := <-ch:
+			fmt.Printf("%+v\n", ticker)
+		case err := <-errCh:
+			fmt.Printf("%+v\n", err)
+		}
+	}
+
+	// Read from channels infinitely
+	for {
+		select {
+		case ticker := <-ch:
+			fmt.Printf("%+v\n", ticker)
+		case err := <-errCh:
+			fmt.Printf("%+v\n", err)
+		}
 	}
 }
 ```
 
-## Todos
+## TODOs
 
 - [ ] REST API
     - [ ] Account ([#13][i13])
@@ -126,9 +150,9 @@ func main() {
 		- [ ] Market Summaries
 		- [ ] Market Summary
 		- [ ] Order ([#13][i13])
-		- [ ] Orderbook
+		- [X] Orderbook
 		- [ ] Tickers
-		- [ ] Ticker
+		- [X] Ticker
 		- [X] Trade
 
 ## References
