@@ -42,9 +42,10 @@ type Response struct {
 }
 
 // doAsyncTimeout runs f in a different goroutine
-//   if f returns before timeout elapses, doAsyncTimeout returns
-//     the result of f().
-//     otherwise it returns "operation timeout" error, and calls tmFunc after f returns.
+//
+//	if f returns before timeout elapses, doAsyncTimeout returns
+//	  the result of f().
+//	  otherwise it returns "operation timeout" error, and calls tmFunc after f returns.
 func doAsyncTimeout(f func() error, tmFunc func(error), timeout time.Duration) error {
 	errs := make(chan error)
 
@@ -102,17 +103,19 @@ func (b *Bittrex) Authentication(c *signalr.Client) error {
 }
 
 // Sends a message at the start of each candle (based on the subscribed interval) and when trades have occurred on the market.
-//   Note that this means on an active market you will receive many updates over the course of each candle interval as trades occur.
-//   You will always recieve an update at the start of each interval.
-//   If no trades occurred yet, this update will be a 0-volume placeholder that carries forward the Close of the previous interval as the current interval's OHLC values.
+//
+//	Note that this means on an active market you will receive many updates over the course of each candle interval as trades occur.
+//	You will always receive an update at the start of each interval.
+//	If no trades occurred yet, this update will be a 0-volume placeholder that carries forward the Close of the previous interval as the current interval's OHLC values.
 func (b *Bittrex) SubscribeCandleUpdates(market string, candles chan<- Candle, stop <-chan bool) error {
 	return b.SubscribeCandleUpdatesWithOpts(market, INTERVAL_MINUTE1, candles, stop)
 }
 
 // Sends a message at the start of each candle (based on the subscribed interval) and when trades have occurred on the market.
-//   Note that this means on an active market you will receive many updates over the course of each candle interval as trades occur.
-//   You will always recieve an update at the start of each interval.
-//   If no trades occurred yet, this update will be a 0-volume placeholder that carries forward the Close of the previous interval as the current interval's OHLC values.
+//
+//	Note that this means on an active market you will receive many updates over the course of each candle interval as trades occur.
+//	You will always receive an update at the start of each interval.
+//	If no trades occurred yet, this update will be a 0-volume placeholder that carries forward the Close of the previous interval as the current interval's OHLC values.
 func (b *Bittrex) SubscribeCandleUpdatesWithOpts(market string, candleInterval string, candles chan<- Candle, stop <-chan bool) error {
 	const timeout = 5 * time.Second
 	client := signalr.NewWebsocketClient()
@@ -221,7 +224,8 @@ func (b *Bittrex) SubscribeCandleUpdatesWithOpts(market string, candleInterval s
 }
 
 // Provides regular updates of the current market summary data for all markets.
-//   Market summary data is different from candles in that it is a rolling 24-hour number as opposed to data for a fixed interval like candles.
+//
+//	Market summary data is different from candles in that it is a rolling 24-hour number as opposed to data for a fixed interval like candles.
 func (b *Bittrex) SubscribeMarketSummariesUpdates(marketSummaries chan<- MarketSummary, stop <-chan bool) error {
 	const timeout = 5 * time.Second
 	client := signalr.NewWebsocketClient()
@@ -328,7 +332,8 @@ func (b *Bittrex) SubscribeMarketSummariesUpdates(marketSummaries chan<- MarketS
 }
 
 // Provides regular updates of the current market summary data for a given market.
-//   Market summary data is different from candles in that it is a rolling 24-hour number as opposed to data for a fixed interval like candles.
+//
+//	Market summary data is different from candles in that it is a rolling 24-hour number as opposed to data for a fixed interval like candles.
 func (b *Bittrex) SubscribeMarketSummaryUpdates(market string, marketSummaries chan<- MarketSummary, stop <-chan bool) error {
 	const timeout = 5 * time.Second
 	client := signalr.NewWebsocketClient()
