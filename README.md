@@ -120,7 +120,7 @@ func main() {
     - [ ] Unsubscribe
 	- [ ] Streams
 		- [ ] Balance ([#13][i13])
-		- [ ] Candle
+		- [X] Candle
 		- [ ] Conditional Order ([#13][i13])
 		- [ ] Deposit ([#13][i13])
 		- [ ] Execution ([#13][i13])
@@ -129,7 +129,7 @@ func main() {
 		- [ ] Market Summary
 		- [ ] Order ([#13][i13])
 		- [X] Orderbook
-		- [ ] Tickers
+		- [X] Tickers
 		- [X] Ticker
 		- [X] Trade
 

@@ -77,11 +77,13 @@ type Ping struct {
 }
 
 type Candle struct {
-	StartsAt    time.Time       `json:"startsAt"`
-	Open        decimal.Decimal `json:"open"`
-	High        decimal.Decimal `json:"high"`
-	Low         decimal.Decimal `json:"low"`
-	Close       decimal.Decimal `json:"close"`
-	Volume      decimal.Decimal `json:"volume"`
-	QuoteVolume decimal.Decimal `json:"quoteVolume"`
+	MarketSymbol string
+	Interval     string
+	StartsAt     time.Time       `json:"startsAt"`
+	Open         decimal.Decimal `json:"open"`
+	High         decimal.Decimal `json:"high"`
+	Low          decimal.Decimal `json:"low"`
+	Close        decimal.Decimal `json:"close"`
+	Volume       decimal.Decimal `json:"volume"`
+	QuoteVolume  decimal.Decimal `json:"quoteVolume"`
 }

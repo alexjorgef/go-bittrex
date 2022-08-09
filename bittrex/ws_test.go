@@ -8,6 +8,39 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestTradeStream_SubscribeCandleUpdates(t *testing.T) {
+	client := New("", "")
+	ch := make(chan Candle)
+	errCh := make(chan error)
+	stopCh := make(chan bool)
+	go func() { errCh <- client.SubscribeCandleUpdates("ADA-USD", ch, stopCh) }()
+	var err error
+	var candle Candle
+	select {
+	case candle = <-ch:
+	case err = <-errCh:
+	case <-time.NewTicker(3 * time.Minute).C:
+		stopCh <- true
+		err = errors.New("timeout")
+	}
+	assert.NoError(t, err)
+	assert.NotEmpty(t, candle.MarketSymbol)
+	assert.NotEmpty(t, candle.Interval)
+	assert.NotEmpty(t, candle.StartsAt)
+	assert.NotEmpty(t, candle.Open)
+	open, _ := candle.Open.Float64()
+	assert.Greater(t, open, float64(0))
+	assert.NotEmpty(t, candle.High)
+	high, _ := candle.High.Float64()
+	assert.Greater(t, high, float64(0))
+	assert.NotEmpty(t, candle.Low)
+	low, _ := candle.Low.Float64()
+	assert.Greater(t, low, float64(0))
+	assert.NotEmpty(t, candle.Close)
+	close, _ := candle.Close.Float64()
+	assert.Greater(t, close, float64(0))
+}
+
 func TestTradeStream_SubscribeOrderbookUpdates(t *testing.T) {
 	client := New("", "")
 	ch := make(chan OrderBook)
