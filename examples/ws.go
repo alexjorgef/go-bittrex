@@ -29,16 +29,30 @@ func realMainWs() int {
 		}
 	}
 
-	// Subscribe to candle stream
+	// Subscribe to marketSummaries stream
 	chMarketSummaries := make(chan bittrex.MarketSummary)
-	go func() { errCh <- client.SubscribeMarketSummariesUpdates(chMarketSummaries, stopCh) }()
-	go func() { errCh <- client.SubscribeMarketSummariesUpdates(chMarketSummaries, stopCh) }()
 	go func() { errCh <- client.SubscribeMarketSummariesUpdates(chMarketSummaries, stopCh) }()
 
 	fmt.Printf("MarketSummary (SubscribeMarketSummariesUpdates):\n")
 	for start := time.Now(); time.Since(start) < (5 * time.Second); {
 		select {
 		case marketSummary := <-chMarketSummaries:
+			fmt.Printf("\t%+v\n", marketSummary)
+		case err := <-errCh:
+			fmt.Printf("\t%+v\n", err)
+		}
+	}
+
+	// Subscribe to marketSummary stream
+	chMarketSummary := make(chan bittrex.MarketSummary)
+	go func() { errCh <- client.SubscribeMarketSummaryUpdates("BTC-USD", chMarketSummary, stopCh) }()
+	go func() { errCh <- client.SubscribeMarketSummaryUpdates("ETH-USD", chMarketSummary, stopCh) }()
+	go func() { errCh <- client.SubscribeMarketSummaryUpdates("ADA-USD", chMarketSummary, stopCh) }()
+
+	fmt.Printf("MarketSummary (SubscribeMarketSummaryUpdates):\n")
+	for start := time.Now(); time.Since(start) < (5 * time.Second); {
+		select {
+		case marketSummary := <-chMarketSummary:
 			fmt.Printf("\t%+v\n", marketSummary)
 		case err := <-errCh:
 			fmt.Printf("\t%+v\n", err)
@@ -59,7 +73,7 @@ func realMainWs() int {
 		}
 	}
 
-	// Subscribe to ticker stream
+	// Subscribe to tickers stream
 	chTickers := make(chan bittrex.Ticker)
 	go func() { errCh <- client.SubscribeTickersUpdates(chTickers, stopCh) }()
 	go func() { errCh <- client.SubscribeTickersUpdates(chTickers, stopCh) }()
