@@ -29,6 +29,22 @@ func realMainWs() int {
 		}
 	}
 
+	// Subscribe to candle stream
+	chMarketSummaries := make(chan bittrex.MarketSummary)
+	go func() { errCh <- client.SubscribeMarketSummariesUpdates(chMarketSummaries, stopCh) }()
+	go func() { errCh <- client.SubscribeMarketSummariesUpdates(chMarketSummaries, stopCh) }()
+	go func() { errCh <- client.SubscribeMarketSummariesUpdates(chMarketSummaries, stopCh) }()
+
+	fmt.Printf("MarketSummary (SubscribeMarketSummariesUpdates):\n")
+	for start := time.Now(); time.Since(start) < (5 * time.Second); {
+		select {
+		case marketSummary := <-chMarketSummaries:
+			fmt.Printf("\t%+v\n", marketSummary)
+		case err := <-errCh:
+			fmt.Printf("\t%+v\n", err)
+		}
+	}
+
 	// Subscribe to ordebook stream
 	chOrderbook := make(chan bittrex.OrderBook)
 	go func() { errCh <- client.SubscribeOrderbookUpdates("ADA-USD", chOrderbook, stopCh) }()

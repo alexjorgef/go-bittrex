@@ -28,6 +28,19 @@ type TickerSlice struct {
 	}
 }
 
+type MarketSummarySlice struct {
+	Sequence int `json:"sequence"`
+	Deltas   []struct {
+		Symbol        string          `json:"symbol"`
+		High          decimal.Decimal `json:"high"`
+		Low           decimal.Decimal `json:"low"`
+		Volume        decimal.Decimal `json:"volume"`
+		QuoteVolume   decimal.Decimal `json:"quoteVolume"`
+		PercentChange decimal.Decimal `json:"percentChange"`
+		UpdatedAt     time.Time       `json:"updatedAt"`
+	}
+}
+
 type OrderBookSlice struct {
 	MarketSymbol string  `json:"marketSymbol"`
 	Depth        int     `json:"depth"`
