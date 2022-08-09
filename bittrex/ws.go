@@ -24,6 +24,7 @@ const (
 	WS_BASE = "socket-v3.bittrex.com" // WS API endpoint
 	WS_HUB  = "C3"                    // SignalR main hub
 
+	STREAM_CANDLE    = "candle"
 	STREAM_ORDERBOOK = "orderBook"
 	STREAM_TICKER    = "ticker"
 	STREAM_TICKERS   = "tickers"
@@ -97,6 +98,120 @@ func (b *Bittrex) Authentication(c *signalr.Client) error {
 	return nil
 }
 
+// TODO: Add a default and a function with parameters for candleInterval
+// Sends a message at the start of each candle (based on the subscribed interval) and when trades have occurred on the market.
+//   Note that this means on an active market you will receive many updates over the course of each candle interval as trades occur.
+//   You will always recieve an update at the start of each interval.
+//   If no trades occurred yet, this update will be a 0-volume placeholder that carries forward the Close of the previous interval as the current interval's OHLC values.
+func (b *Bittrex) SubscribeCandleUpdates(market string, candles chan<- Candle, stop <-chan bool) error {
+	const timeout = 5 * time.Second
+	client := signalr.NewWebsocketClient()
+
+	var updTime int64
+
+	client.OnClientMethod = func(hub string, method string, messages []json.RawMessage) {
+		if hub != WS_HUB {
+			return
+		}
+
+		switch method {
+		case STREAM_HEARTBEAT, STREAM_CANDLE:
+			atomic.StoreInt64(&updTime, time.Now().Unix())
+		default:
+			fmt.Printf("unsupported message type: %s %v\n", method, messages)
+		}
+
+		for _, msg := range messages {
+			dbuf, err := base64.StdEncoding.DecodeString(strings.Trim(string(msg), `"`))
+			if err != nil {
+				fmt.Printf("DecodeString error: %s %s\n", err.Error(), string(msg))
+				continue
+			}
+
+			r, err := zlib.NewReader(bytes.NewReader(append([]byte{120, 156}, dbuf...)))
+			if err != nil {
+				fmt.Printf("unzip error %s %s \n", err.Error(), string(msg))
+				continue
+			}
+			defer r.Close()
+
+			var out bytes.Buffer
+			written, _ := io.Copy(&out, r)
+
+			if written > 0 {
+				candleSlice := CandleSlice{}
+				err = json.Unmarshal(out.Bytes(), &candleSlice)
+				if err != nil {
+					fmt.Printf("unmarshal error %s\n", err.Error())
+					continue
+				}
+
+				candle := Candle{
+					MarketSymbol: candleSlice.MarketSymbol,
+					Interval:     candleSlice.Interval,
+					StartsAt:     candleSlice.Delta.StartsAt,
+					Open:         candleSlice.Delta.Open,
+					High:         candleSlice.Delta.High,
+					Low:          candleSlice.Delta.Low,
+					Close:        candleSlice.Delta.Close,
+					Volume:       candleSlice.Delta.Volume,
+					QuoteVolume:  candleSlice.Delta.QuoteVolume,
+				}
+				select {
+				case candles <- candle:
+				default:
+					if b.client.debug {
+						log.Printf("candle send err: %s %d\n", market, len(candles))
+					}
+				}
+
+			}
+		}
+	}
+
+	client.OnMessageError = func(err error) {
+		fmt.Printf("ERROR OCCURRED: %s\n", err.Error())
+	}
+
+	err := doAsyncTimeout(
+		func() error {
+			return client.Connect("https", WS_BASE, []string{WS_HUB})
+		}, func(err error) {
+			if err == nil {
+				client.Close()
+			}
+		}, timeout)
+	if err != nil {
+		return err
+	}
+
+	defer client.Close()
+
+	_, err = client.CallHub(WS_HUB, "Subscribe", []interface{}{"heartbeat", "candle_" + market + "_MINUTE_1"})
+	if err != nil {
+		return err
+	}
+
+	tick := time.NewTicker(1 * time.Minute)
+
+	for {
+		select {
+		case signal := <-stop:
+			if signal {
+				return errors.New("client.stop")
+			}
+		case <-client.DisconnectedChannel:
+			return errors.New("client.DisconnectedChannel")
+		case <-tick.C:
+			if time.Now().Unix()-atomic.LoadInt64(&updTime) > 60 {
+				return errors.New("candle messages timeout")
+			}
+		}
+
+	}
+}
+
+// TODO: Add a default and a function with parameters for depth
 // Sends a message when there are changes to the order book within the subscribed depth.
 func (b *Bittrex) SubscribeOrderbookUpdates(market string, orderbooks chan<- OrderBook, stop <-chan bool) error {
 	const timeout = 5 * time.Second
@@ -256,7 +371,7 @@ func (b *Bittrex) SubscribeTickersUpdates(tickers chan<- Ticker, stop <-chan boo
 					case tickers <- ticker:
 					default:
 						if b.client.debug {
-							log.Printf("ticker send err: %d\n", len(tickers))
+							log.Printf("tickers send err: %d\n", len(tickers))
 						}
 					}
 				}
@@ -300,7 +415,7 @@ func (b *Bittrex) SubscribeTickersUpdates(tickers chan<- Ticker, stop <-chan boo
 			return errors.New("client.DisconnectedChannel")
 		case <-tick.C:
 			if time.Now().Unix()-atomic.LoadInt64(&updTime) > 60 {
-				return errors.New("trade messages timeout")
+				return errors.New("tickers messages timeout")
 			}
 		}
 	}
@@ -397,7 +512,7 @@ func (b *Bittrex) SubscribeTickerUpdates(market string, tickers chan<- Ticker, s
 			return errors.New("client.DisconnectedChannel")
 		case <-tick.C:
 			if time.Now().Unix()-atomic.LoadInt64(&updTime) > 60 {
-				return errors.New("trade messages timeout")
+				return errors.New("ticker messages timeout")
 			}
 		}
 	}

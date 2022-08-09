@@ -13,11 +13,27 @@ func realMainWs() int {
 	errCh := make(chan error)
 	stopCh := make(chan bool)
 
+	// Subscribe to candle stream
+	chCandle := make(chan bittrex.Candle)
+	go func() { errCh <- client.SubscribeCandleUpdates("BTC-USD", chCandle, stopCh) }()
+	go func() { errCh <- client.SubscribeCandleUpdates("ETH-USD", chCandle, stopCh) }()
+	go func() { errCh <- client.SubscribeCandleUpdates("ADA-USD", chCandle, stopCh) }()
+
+	fmt.Printf("Candle (SubscribeCandleUpdates):\n")
+	for start := time.Now(); time.Since(start) < (5 * time.Second); {
+		select {
+		case candle := <-chCandle:
+			fmt.Printf("\t%+v\n", candle)
+		case err := <-errCh:
+			fmt.Printf("\t%+v\n", err)
+		}
+	}
+
 	// Subscribe to ordebook stream
 	chOrderbook := make(chan bittrex.OrderBook)
 	go func() { errCh <- client.SubscribeOrderbookUpdates("ADA-USD", chOrderbook, stopCh) }()
 
-	fmt.Printf("OrderBook (Symbol, Depth, Bid, Ask):\n")
+	fmt.Printf("OrderBook (SubscribeOrderbookUpdates):\n")
 	for start := time.Now(); time.Since(start) < (5 * time.Second); {
 		select {
 		case orderbook := <-chOrderbook:
@@ -33,7 +49,7 @@ func realMainWs() int {
 	go func() { errCh <- client.SubscribeTickersUpdates(chTickers, stopCh) }()
 	go func() { errCh <- client.SubscribeTickersUpdates(chTickers, stopCh) }()
 
-	fmt.Printf("Ticker (Symbol, LastTradeRate, BitRate, AskRate):\n")
+	fmt.Printf("Ticker (SubscribeTickersUpdates):\n")
 	for start := time.Now(); time.Since(start) < (5 * time.Second); {
 		select {
 		case ticker := <-chTickers:
@@ -49,7 +65,7 @@ func realMainWs() int {
 	go func() { errCh <- client.SubscribeTickerUpdates("ETH-USD", chTicker, stopCh) }()
 	go func() { errCh <- client.SubscribeTickerUpdates("ADA-USD", chTicker, stopCh) }()
 
-	fmt.Printf("Ticker (Symbol, LastTradeRate, BitRate, AskRate):\n")
+	fmt.Printf("Ticker (SubscribeTickerUpdates):\n")
 	for start := time.Now(); time.Since(start) < (5 * time.Second); {
 		select {
 		case ticker := <-chTicker:
@@ -82,7 +98,7 @@ func realMainWs() int {
 	go func() { errCh <- client.SubscribeTradeUpdates("DOT-ETH", chTrade, stopCh) }()
 	go func() { errCh <- client.SubscribeTradeUpdates("DOGE-USDT", chTrade, stopCh) }()
 
-	fmt.Printf("Trade (Symbol, ID, ExecutedAt, Quantity, Rate, TakerSide):\n")
+	fmt.Printf("Trade (SubscribeTradeUpdates):\n")
 	for start := time.Now(); time.Since(start) < (5 * time.Second); {
 		select {
 		case trade := <-chTrade:

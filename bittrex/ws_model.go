@@ -35,3 +35,18 @@ type OrderBookSlice struct {
 	BidDeltas    []Order `json:"bidDeltas"`
 	AskDeltas    []Order `json:"askDeltas"`
 }
+
+type CandleSlice struct {
+	Sequence     int    `json:"sequence"`
+	MarketSymbol string `json:"marketSymbol"`
+	Interval     string `json:"interval"`
+	Delta        struct {
+		StartsAt    time.Time       `json:"startsAt"`
+		Open        decimal.Decimal `json:"open"`
+		High        decimal.Decimal `json:"high"`
+		Low         decimal.Decimal `json:"low"`
+		Close       decimal.Decimal `json:"close"`
+		Volume      decimal.Decimal `json:"volume"`
+		QuoteVolume decimal.Decimal `json:"quoteVolume"`
+	}
+}
