@@ -95,44 +95,6 @@ func main() {
 }
 ```
 
-## TODOs
-
-- [ ] REST API
-    - [ ] Account ([#13][i13])
-    - [ ] Addresses ([#13][i13])
-    - [ ] Balances ([#13][i13])
-    - [ ] Batch ([#13][i13])
-    - [ ] ConditionalOrders ([#13][i13])
-    - [X] Currencies
-    - [ ] Deposits ([#13][i13])
-    - [ ] Executions ([#13][i13])
-    - [ ] FundsTransferMethods ([#13][i13])
-    - [X] Markets
-    - [ ] Orders ([#13][i13])
-	- [X] Ping
-    - [ ] Subaccounts ([#13][i13])
-    - [ ] Transfers ([#13][i13])
-    - [ ] Withdrawals ([#13][i13])
-- [ ] Websocket API
-    - [ ] Authenticate ([#13][i13])
-    - [ ] IsAuthenticated ([#13][i13])
-    - [X] Subscribe
-    - [ ] Unsubscribe
-	- [ ] Streams
-		- [ ] Balance ([#13][i13])
-		- [X] Candle
-		- [ ] Conditional Order ([#13][i13])
-		- [ ] Deposit ([#13][i13])
-		- [ ] Execution ([#13][i13])
-		- [X] Heartbeat
-		- [X] Market Summaries
-		- [X] Market Summary
-		- [ ] Order ([#13][i13])
-		- [X] Orderbook
-		- [X] Tickers
-		- [X] Ticker
-		- [X] Trade
-
 ## References
 
 This repository is a cleaned & updated version of [toorop/go-bittrex](https://github.com/toorop/go-bittrex) repo (inspired from [alexeykaravan/go-bittrex-v3](https://github.com/alexeykaravan/go-bittrex-v3) fork).
